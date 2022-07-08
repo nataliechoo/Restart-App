@@ -58,18 +58,9 @@ how much love we put into giving.
                 
                 ZStack {
                     //this ZStack will contain a character that lies atop the two circles
-                    ZStack {
-                        //this ZStack will contain two circles, the second circle will be layered atop the second.
-                        //these circles exist below the above ZStack layer
-                        Circle()
-                            .stroke(.white.opacity(0.2), lineWidth: 40)
-                            .frame(width: 260, height: 260, alignment: .center)
-                        Circle()
-                            .stroke(.white.opacity(0.2), lineWidth: 80)
-                            .frame(width: 260, height:260, alignment: .center)
-                        //these two circles are aligned with each other but one is thicker
-                        
-                    }// inner Zstack w/ circles
+                    
+                    CircleGroupView(CircleColor: .white, CircleOpacity: 0.2)
+                    //using CircleGroupView Method
                     
                     Image("character-1")
                         .resizable()
