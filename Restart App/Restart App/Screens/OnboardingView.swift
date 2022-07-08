@@ -19,6 +19,7 @@ struct OnboardingView: View {
             
             Color("ColorBlue").ignoresSafeArea(.all, edges: .all)
             //.ignoreSafeArea allows the blue to fill all the way to edges of device
+            // farthest back layer of background color
 
             VStack(spacing: 20)
             {
@@ -32,6 +33,7 @@ struct OnboardingView: View {
                 
                 
                 VStack(spacing: 0) {
+                    // This Vstack contains the title text, the body text, and the ZStack containing the image and circles
                     Text("Share.")
                         .font(.system(size: 60))
                         .fontWeight(.heavy)
@@ -77,9 +79,10 @@ how much love we put into giving.
                 }// outer Zstack w/ character
                 
                 Spacer()
-                //this Spacer() pushes the ZStack and Vstack text elements up so that it is centered
+                //this Spacer() pushes the ZStack and Vstack text elements up
                 
                 ZStack {
+                    // this ZStack builds the slider bar and the botton atop it
                     
                     // MARK: Static Background
                     Capsule()
