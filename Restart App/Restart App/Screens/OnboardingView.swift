@@ -10,7 +10,13 @@ import SwiftUI
 struct OnboardingView: View {
     @AppStorage("onboarding") var isOnboardingViewActive: Bool = true
     // we utilize this var to determine the appropriate screen to display
-
+    
+    @State private var buttonWidth: Double = UIScreen.main.bounds.width - 37
+    // allows us to have the proper screen width for any device, which makes our button adaptable
+    
+    @State private var buttonOffset: CGFloat = 0
+    // initialize buttonOffset to 0, since it will not be moved at compile time
+    
     var body: some View {
         
         ZStack {
@@ -95,7 +101,8 @@ how much love we put into giving.
                     HStack {
                         Capsule()
                             .fill(Color("ColorRed"))
-                            .frame(width: 80)
+                            .frame(width: buttonOffset + 80)
+                        //this allows the capsule to deform size according to the buttonOffset, +80 because the offset will initially be 0, and we want the capsule to initially be a circle
                         
                         Spacer()
                         //because this is w/in a Zstack w/ padding but also in an HStack, it will be pushed horizontally as far as the Zstack's padding allows
@@ -115,10 +122,28 @@ how much love we put into giving.
                         }
                         .foregroundColor(.white)
                         .frame(width: 80, height: 80, alignment: .center)
-                        .onTapGesture {
-                            //when users tap the circle, set this value to false, taking user to the Home screen
-                            isOnboardingViewActive = false
-                        }
+                        .offset(x: buttonOffset)    //move the object with buttonOffset
+                        .gesture(
+                            DragGesture()
+                                .onChanged { gesture in
+                                    if gesture.translation.width > 0 && buttonOffset <= buttonWidth - 80
+                                    {
+                                        //when the gesture translation width changes, adjust the buttonOffset as well, so long as the buttonOffset stays within the background bounds
+                                        buttonOffset = gesture.translation.width
+                                    }
+                                }
+                                .onEnded { _ in
+                                    //when the gesture is done, if the offset is over half of the width, we change screens and move the offset to the end
+                                    //if the offset is less than half the width at the end of the mvoement, we move it back to 0 and dont change screens
+                                    if buttonOffset > buttonWidth/2 {
+                                        buttonOffset = buttonWidth - 80
+                                        isOnboardingViewActive = false
+                                    }
+                                    else {
+                                        buttonOffset = 0
+                                    }
+                                }
+                        )
                         
                         Spacer()
                         //Spacer w/in an Hstack moves it over horizontally, as much as the outer ZStack's padding allows
