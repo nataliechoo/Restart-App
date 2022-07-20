@@ -11,6 +11,7 @@ struct CircleGroupView: View {
     
     @State var CircleColor:  Color
     @State var CircleOpacity: Double
+    @State private var isAnimating: Bool = false
     
     var body: some View {
         ZStack {
@@ -25,6 +26,14 @@ struct CircleGroupView: View {
             //these two circles are aligned with each other but one is thicker
             
         }// inner Zstack w/ circles
+        .blur(radius: isAnimating ? 0 : 10)
+        .opacity(isAnimating ? 1 : 0)
+        .scaleEffect(isAnimating ? 1:0)
+        .animation(.easeOut(duration: 1), value: isAnimating)
+        .onAppear(perform: {
+            isAnimating = true
+        })
+        
     }
 }
 

@@ -17,6 +17,14 @@ struct OnboardingView: View {
     @State private var buttonOffset: CGFloat = 0
     // initialize buttonOffset to 0, since it will not be moved at compile time
     
+    @State private var isAnimating: Bool = false
+    
+    @State private var imageOffset: CGSize = .zero
+    
+    @State private var indicatorOpacity: Double = 1.0
+    
+    @State private var textTitle: String = "Share."
+    
     var body: some View {
         
         ZStack {
@@ -40,10 +48,12 @@ struct OnboardingView: View {
                 
                 VStack(spacing: 0) {
                     // This Vstack contains the title text, the body text, and the ZStack containing the image and circles
-                    Text("Share.")
+                    Text(textTitle)
                         .font(.system(size: 60))
                         .fontWeight(.heavy)
                         .foregroundColor(.white)
+                        .transition(.opacity)
+                        .id(textTitle)
                     //use .font(.system(size:)) to change size
                     //use fontWeight() for weighting
                     //use foregroundColor() for text color
@@ -61,19 +71,64 @@ how much love we put into giving.
                     //use multilinetextalignment to align multiple lines
                     //use .padding to determine amt of padding on the sides of the text
                 } //HEADER
+                .opacity(isAnimating ? 1 : 0)   //transition from invis to visible
+                .offset(y: isAnimating ? 0 : -40)   // move into place when animating
+                .animation(.easeOut(duration:1), value: isAnimating)
+                //animate for 1 sec based on isAnimating var
                 
                 ZStack {
                     //this ZStack will contain a character that lies atop the two circles
                     
                     CircleGroupView(CircleColor: .white, CircleOpacity: 0.2)
+                        .offset(x: imageOffset.width * -1) //move in opp direction of char
+                        .blur(radius: abs(imageOffset.width / 5))
+                        .animation(.easeOut(duration:1), value: imageOffset)
                     //using CircleGroupView Method
                     
                     Image("character-1")
                         .resizable()
                         . scaledToFit()
+                        .opacity(isAnimating ? 1: 0) //appear upon animation
+                        .animation(.easeOut(duration: 0.5), value: isAnimating)
+                        .offset(x: imageOffset.width * 1.2, y: 0)
+                        .rotationEffect(.degrees(Double(imageOffset.width / 20)))
+                        .gesture(
+                            DragGesture()
+                                .onChanged { gesture in
+                                    //allow drag movement within bounds
+                                    if abs(imageOffset.width) <= 150 {
+                                        imageOffset = gesture.translation
+                                        
+                                        withAnimation(.linear(duration: 0.25)) {
+                                            indicatorOpacity = 0
+                                            textTitle = "Give."
+                                        }
+                                    }
+                                }
+                                .onEnded { _ in
+                                    //snap character back to center
+                                    imageOffset = .zero
+                                    
+                                    withAnimation(.linear(duration: 0.25)) {
+                                        indicatorOpacity = 1
+                                        textTitle = "Share."
+                                    }
+                                }
+                        )
+                        .animation(.easeOut(duration: 1), value: imageOffset)
+                    //ease in upon animation
                     //this image is in the outer ZStack, so it is layered atop of the circles
                     
                 }// outer Zstack w/ character
+                .overlay(
+                    Image(systemName: "arrow.left.and.right.circle")
+                        .font(.system(size: 44, weight: .ultraLight))
+                        .foregroundColor(.white)
+                        .offset(y: 20)
+                        .animation(.easeOut(duration: 1).delay(2), value: isAnimating)
+                        .opacity(indicatorOpacity)
+                        , alignment: .bottom
+                )
                 
                 Spacer()
                 //this Spacer() pushes the ZStack and Vstack text elements up
@@ -135,12 +190,14 @@ how much love we put into giving.
                                 .onEnded { _ in
                                     //when the gesture is done, if the offset is over half of the width, we change screens and move the offset to the end
                                     //if the offset is less than half the width at the end of the mvoement, we move it back to 0 and dont change screens
-                                    if buttonOffset > buttonWidth/2 {
-                                        buttonOffset = buttonWidth - 80
-                                        isOnboardingViewActive = false
-                                    }
-                                    else {
-                                        buttonOffset = 0
+                                    withAnimation(Animation.easeOut(duration:0.4)) {
+                                        if buttonOffset > buttonWidth/2 {
+                                            buttonOffset = buttonWidth - 80
+                                            isOnboardingViewActive = false
+                                        }
+                                        else {
+                                            buttonOffset = 0
+                                        }
                                     }
                                 }
                         )
@@ -152,9 +209,15 @@ how much love we put into giving.
                 }
                 .frame(height: 80, alignment: .center)
                 .padding()
+                .opacity(isAnimating ? 1 : 0)
+                .offset(y: isAnimating ? 0 : 40)
+                .animation(.easeOut(duration:1), value: isAnimating)
                 //makes all elements in this Zstack at most 80 height and confines it to not go over the device edges
-            } //:Vstack
-        }//Zstack
+            } //:VSTACK
+        }//ZSTACK
+        .onAppear(perform: {
+            isAnimating = true
+        })
     } //Footer
 }
 
