@@ -192,6 +192,7 @@ how much love we put into giving.
                                     //if the offset is less than half the width at the end of the mvoement, we move it back to 0 and dont change screens
                                     withAnimation(Animation.easeOut(duration:0.4)) {
                                         if buttonOffset > buttonWidth/2 {
+                                            playSound(sound: "chimeup", type: "mp3")
                                             buttonOffset = buttonWidth - 80
                                             isOnboardingViewActive = false
                                         }
@@ -218,6 +219,7 @@ how much love we put into giving.
         .onAppear(perform: {
             isAnimating = true
         })
+        .preferredColorScheme(.dark)
     } //Footer
 }
 
